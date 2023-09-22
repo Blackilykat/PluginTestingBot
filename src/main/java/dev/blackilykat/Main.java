@@ -168,13 +168,15 @@ public class Main {
 //                }
                 while(session.isConnected()) {
 //                    Console.println("connected !!");
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
 //                    session.send(new ServerboundKeepAlivePacket(0));
-                    if(chatQueue.isEmpty()) continue;
+                    if(chatQueue.isEmpty()) {
+                        try {
+                            Thread.sleep(250);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        continue;
+                    }
 //                    Console.println(chatQueue.get(0));
                     session.send(new ServerboundChatPacket(
                             chatQueue.get(0), // first message in queue
@@ -185,12 +187,17 @@ public class Main {
                             new BitSet() // if this is null it throws an exception and disconnects the bot
                     ));
                     chatQueue.remove(0);
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }).start();
             new Thread(() -> {
                 if(autoCommand.isEmpty()) return;
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(250    );
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -213,6 +220,7 @@ public class Main {
         }
         public void respawn() {
             session.disconnect("no clue how to respawn");
+            chatQueue.clear();
             this.session = new TcpClientSession(ip, port, new MinecraftProtocol(username), null);
             session.addListener(new SessionAdapter(name, this));
             login();
